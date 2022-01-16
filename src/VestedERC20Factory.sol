@@ -6,6 +6,9 @@ import {ERC20} from "./lib/ERC20.sol";
 import {VestedERC20} from "./VestedERC20.sol";
 import {ClonesWithCallData} from "./lib/ClonesWithCallData.sol";
 
+/// @title VestedERC20Factory
+/// @author zefram.eth
+/// @notice Factory for deploying VestedERC20 contracts cheaply
 contract VestedERC20Factory {
     /// -----------------------------------------------------------------------
     /// Library usage
@@ -23,12 +26,23 @@ contract VestedERC20Factory {
     /// Immutable parameters
     /// -----------------------------------------------------------------------
 
+    /// @notice The VestedERC20 used as the template for all clones created
     VestedERC20 public immutable implementation;
 
     constructor(VestedERC20 implementation_) {
         implementation = implementation_;
     }
 
+    /// @notice Creates a VestedERC20 contract
+    /// @dev Uses a modified minimal proxy contract that stores immutable parameters in code and
+    /// passes them in through calldata. See ClonesWithCallData.
+    /// @param name The name of the VestedERC20 token
+    /// @param symbol The symbol of the VestedERC20 token
+    /// @param decimals The number of decimals used by the VestedERC20 token
+    /// @param underlying The ERC20 token that is vested
+    /// @param startTimestamp The start time of the vest, Unix timestamp in seconds
+    /// @param endTimestamp The end time of the vest, must be greater than startTimestamp, Unix timestamp in seconds
+    /// @return The created VestedERC20 contract
     function createVestedERC20(
         bytes32 name,
         bytes32 symbol,
