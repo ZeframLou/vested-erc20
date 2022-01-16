@@ -8,6 +8,10 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {ERC20} from "./lib/ERC20.sol";
 import {FullMath} from "./lib/FullMath.sol";
 
+/// @title VestedERC20
+/// @author zefram.eth
+/// @notice An ERC20 wrapper token that linearly vests an underlying token to
+/// its holders
 contract VestedERC20 is ERC20 {
     /// -----------------------------------------------------------------------
     /// Library usage
@@ -26,12 +30,15 @@ contract VestedERC20 is ERC20 {
     /// Storage variables
     /// -----------------------------------------------------------------------
 
+    /// @notice The amount of underlying tokens claimed by a token holder
     mapping(address => uint256) public claimedUnderlyingAmount;
 
     /// -----------------------------------------------------------------------
     /// Immutable parameters
     /// -----------------------------------------------------------------------
 
+    /// @notice The token that is vested
+    /// @return _underlying The address of the underlying token
     function underlying() public pure returns (address _underlying) {
         uint256 offset = _getImmutableVariablesOffset();
         assembly {
@@ -39,6 +46,8 @@ contract VestedERC20 is ERC20 {
         }
     }
 
+    /// @notice The Unix timestamp (in seconds) of the start of the vest
+    /// @return _startTimestamp The vest start timestamp
     function startTimestamp() public pure returns (uint64 _startTimestamp) {
         uint256 offset = _getImmutableVariablesOffset();
         assembly {
@@ -46,6 +55,8 @@ contract VestedERC20 is ERC20 {
         }
     }
 
+    /// @notice The Unix timestamp (in seconds) of the end of the vest
+    /// @return _endTimestamp The vest end timestamp
     function endTimestamp() public pure returns (uint64 _endTimestamp) {
         uint256 offset = _getImmutableVariablesOffset();
         assembly {
@@ -57,6 +68,10 @@ contract VestedERC20 is ERC20 {
     /// User actions
     /// -----------------------------------------------------------------------
 
+    /// @notice Mints wrapped tokens using underlying tokens. Can only be called before the vest is over.
+    /// @param underlyingAmount The amount of underlying tokens to wrap
+    /// @param recipient The address that will receive the minted wrapped tokens
+    /// @return wrappedTokenAmount The amount of wrapped tokens minted
     function wrap(uint256 underlyingAmount, address recipient)
         external
         returns (uint256 wrappedTokenAmount)
@@ -112,6 +127,9 @@ contract VestedERC20 is ERC20 {
         );
     }
 
+    /// @notice Allows a holder of the wrapped token to redeem the vested tokens
+    /// @param recipient The address that will receive the vested tokens
+    /// @return redeemedAmount The amount of vested tokens redeemed
     function redeem(address recipient)
         external
         returns (uint256 redeemedAmount)
@@ -139,6 +157,7 @@ contract VestedERC20 is ERC20 {
         }
     }
 
+    /// @notice The ERC20 transfer function
     function transfer(address to, uint256 amount)
         public
         override
@@ -179,6 +198,7 @@ contract VestedERC20 is ERC20 {
         return true;
     }
 
+    /// @notice The ERC20 transferFrom function
     function transferFrom(
         address from,
         address to,
@@ -221,6 +241,13 @@ contract VestedERC20 is ERC20 {
         return true;
     }
 
+    /// -----------------------------------------------------------------------
+    /// Getters
+    /// -----------------------------------------------------------------------
+
+    /// @notice Computes the amount of vested tokens redeemable by an account
+    /// @param holder The wrapped token holder to query
+    /// @return The amount of vested tokens redeemable
     function getRedeemableAmount(address holder)
         external
         view
@@ -228,6 +255,10 @@ contract VestedERC20 is ERC20 {
     {
         return _getRedeemableAmount(holder, claimedUnderlyingAmount[holder]);
     }
+
+    /// -----------------------------------------------------------------------
+    /// Internal functions
+    /// -----------------------------------------------------------------------
 
     function _getRedeemableAmount(
         address holder,
