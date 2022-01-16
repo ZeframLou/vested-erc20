@@ -56,7 +56,8 @@ contract VestedERC20FactoryTest is DSTest {
             startTimestamp + 365 days
         );
 
-        // assertEq(name, vestedToken.name());
+        assertEq(vestedToken.name(), string(abi.encodePacked(name)));
+        assertEq(vestedToken.symbol(), string(abi.encodePacked(symbol)));
         assertEq(vestedToken.decimals(), decimals);
         assertEq(vestedToken.underlying(), underlying);
         assertEq(

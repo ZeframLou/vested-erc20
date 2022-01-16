@@ -36,7 +36,7 @@ abstract contract ERC20 {
         uint256 offset = _getImmutableVariablesOffset();
         bytes32 nameBytes;
         assembly {
-            nameBytes := shr(0x60, calldataload(offset))
+            nameBytes := calldataload(offset)
         }
         return string(abi.encodePacked(nameBytes));
     }
@@ -45,7 +45,7 @@ abstract contract ERC20 {
         uint256 offset = _getImmutableVariablesOffset();
         bytes32 symbolBytes;
         assembly {
-            symbolBytes := shr(0x60, calldataload(add(offset, 0x20)))
+            symbolBytes := calldataload(add(offset, 0x20))
         }
         return string(abi.encodePacked(symbolBytes));
     }
