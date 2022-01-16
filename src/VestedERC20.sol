@@ -6,6 +6,7 @@ import {ERC20 as SolmateERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
 import {ERC20} from "./lib/ERC20.sol";
+import {FullMath} from "./lib/FullMath.sol";
 
 contract VestedERC20 is ERC20 {
     /// -----------------------------------------------------------------------
@@ -111,27 +112,30 @@ contract VestedERC20 is ERC20 {
         );
     }
 
-    function redeem(address recipient) external {
+    function redeem(address recipient)
+        external
+        returns (uint256 redeemedAmount)
+    {
         /// -------------------------------------------------------------------
         /// State updates
         /// -------------------------------------------------------------------
 
         uint256 _claimedUnderlyingAmount = claimedUnderlyingAmount[msg.sender];
-        uint256 redeemableAmount = _getRedeemableAmount(
+        redeemedAmount = _getRedeemableAmount(
             msg.sender,
             _claimedUnderlyingAmount
         );
         claimedUnderlyingAmount[msg.sender] =
             _claimedUnderlyingAmount +
-            redeemableAmount;
+            redeemedAmount;
 
         /// -------------------------------------------------------------------
         /// Effects
         /// -------------------------------------------------------------------
 
-        if (redeemableAmount > 0) {
+        if (redeemedAmount > 0) {
             SolmateERC20 underlyingToken = SolmateERC20(underlying());
-            underlyingToken.safeTransfer(recipient, redeemableAmount);
+            underlyingToken.safeTransfer(recipient, redeemedAmount);
         }
     }
 
@@ -144,19 +148,30 @@ contract VestedERC20 is ERC20 {
         uint256 senderClaimedUnderlyingAmount = claimedUnderlyingAmount[
             msg.sender
         ];
-        uint256 claimedUnderlyingAmountToTransfer = (senderClaimedUnderlyingAmount *
-                amount) / senderBalance;
 
         balanceOf[msg.sender] = senderBalance - amount;
-        claimedUnderlyingAmount[msg.sender] =
-            senderClaimedUnderlyingAmount -
-            claimedUnderlyingAmountToTransfer;
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
         unchecked {
             balanceOf[to] += amount;
-            claimedUnderlyingAmount[to] += claimedUnderlyingAmountToTransfer;
+        }
+
+        uint256 claimedUnderlyingAmountToTransfer = FullMath.mulDiv(
+            senderClaimedUnderlyingAmount,
+            amount,
+            senderBalance
+        );
+
+        if (claimedUnderlyingAmountToTransfer > 0) {
+            claimedUnderlyingAmount[msg.sender] =
+                senderClaimedUnderlyingAmount -
+                claimedUnderlyingAmountToTransfer;
+            unchecked {
+                claimedUnderlyingAmount[
+                    to
+                ] += claimedUnderlyingAmountToTransfer;
+            }
         }
 
         emit Transfer(msg.sender, to, amount);
@@ -176,19 +191,29 @@ contract VestedERC20 is ERC20 {
 
         uint256 fromBalance = balanceOf[from];
         uint256 fromClaimedUnderlyingAmount = claimedUnderlyingAmount[from];
-        uint256 claimedUnderlyingAmountToTransfer = (fromClaimedUnderlyingAmount *
-                amount) / fromBalance;
 
         balanceOf[from] = fromBalance - amount;
-        claimedUnderlyingAmount[from] =
-            fromClaimedUnderlyingAmount -
-            claimedUnderlyingAmountToTransfer;
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
         unchecked {
             balanceOf[to] += amount;
-            claimedUnderlyingAmount[to] += claimedUnderlyingAmountToTransfer;
+        }
+
+        uint256 claimedUnderlyingAmountToTransfer = FullMath.mulDiv(
+            fromClaimedUnderlyingAmount,
+            amount,
+            fromBalance
+        );
+        if (claimedUnderlyingAmountToTransfer > 0) {
+            claimedUnderlyingAmount[from] =
+                fromClaimedUnderlyingAmount -
+                claimedUnderlyingAmountToTransfer;
+            unchecked {
+                claimedUnderlyingAmount[
+                    to
+                ] += claimedUnderlyingAmountToTransfer;
+            }
         }
 
         emit Transfer(from, to, amount);

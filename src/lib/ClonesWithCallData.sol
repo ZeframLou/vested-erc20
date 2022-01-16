@@ -124,7 +124,7 @@ library ClonesWithCallData {
         assembly {
             mstore(copyPtr, and(mload(dataPtr), mask))
         }
-        copyPtr += (32 - counter);
+        copyPtr += counter;
         // solhint-disable-next-line no-inline-assembly
         assembly {
             mstore(copyPtr, shl(240, extraLength))
