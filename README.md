@@ -8,6 +8,12 @@ It's not really suited for trading, but it is a useful tool for plugging vesting
 
 VestedERC20 uses [Foundry](https://github.com/gakonst/foundry) as the development framework.
 
+### Dependencies
+
+```
+make update
+```
+
 ### Compilation
 
 ```
