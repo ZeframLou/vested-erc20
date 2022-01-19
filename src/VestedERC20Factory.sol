@@ -23,6 +23,12 @@ contract VestedERC20Factory {
     error Error_InvalidTimeRange();
 
     /// -----------------------------------------------------------------------
+    /// Events
+    /// -----------------------------------------------------------------------
+
+    event CreateVestedERC20(VestedERC20 vestedERC20);
+
+    /// -----------------------------------------------------------------------
     /// Immutable parameters
     /// -----------------------------------------------------------------------
 
@@ -42,7 +48,7 @@ contract VestedERC20Factory {
     /// @param underlying The ERC20 token that is vested
     /// @param startTimestamp The start time of the vest, Unix timestamp in seconds
     /// @param endTimestamp The end time of the vest, must be greater than startTimestamp, Unix timestamp in seconds
-    /// @return The created VestedERC20 contract
+    /// @return vestedERC20 The created VestedERC20 contract
     function createVestedERC20(
         bytes32 name,
         bytes32 symbol,
@@ -50,7 +56,7 @@ contract VestedERC20Factory {
         address underlying,
         uint64 startTimestamp,
         uint64 endTimestamp
-    ) external returns (VestedERC20) {
+    ) external returns (VestedERC20 vestedERC20) {
         if (endTimestamp <= startTimestamp) {
             revert Error_InvalidTimeRange();
         }
@@ -64,9 +70,9 @@ contract VestedERC20Factory {
             mstore(add(ptr, 0x75), shl(0xc0, startTimestamp))
             mstore(add(ptr, 0x7d), shl(0xc0, endTimestamp))
         }
-        return
-            VestedERC20(
-                address(implementation).cloneWithCallDataProvision(ptr)
-            );
+        vestedERC20 = VestedERC20(
+            address(implementation).cloneWithCallDataProvision(ptr)
+        );
+        emit CreateVestedERC20(vestedERC20);
     }
 }
