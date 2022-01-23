@@ -40,28 +40,19 @@ contract VestedERC20 is ERC20 {
     /// @notice The token that is vested
     /// @return _underlying The address of the underlying token
     function underlying() public pure returns (address _underlying) {
-        uint256 offset = _getImmutableVariablesOffset();
-        assembly {
-            _underlying := shr(0x60, calldataload(add(offset, 0x41)))
-        }
+        return _getArgAddress(0x41);
     }
 
     /// @notice The Unix timestamp (in seconds) of the start of the vest
     /// @return _startTimestamp The vest start timestamp
     function startTimestamp() public pure returns (uint64 _startTimestamp) {
-        uint256 offset = _getImmutableVariablesOffset();
-        assembly {
-            _startTimestamp := shr(0xc0, calldataload(add(offset, 0x55)))
-        }
+        return _getArgUint64(0x55);
     }
 
     /// @notice The Unix timestamp (in seconds) of the end of the vest
     /// @return _endTimestamp The vest end timestamp
     function endTimestamp() public pure returns (uint64 _endTimestamp) {
-        uint256 offset = _getImmutableVariablesOffset();
-        assembly {
-            _endTimestamp := shr(0xc0, calldataload(add(offset, 0x5d)))
-        }
+        return _getArgUint64(0x5d);
     }
 
     /// -----------------------------------------------------------------------

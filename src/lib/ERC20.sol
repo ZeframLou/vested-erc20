@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
+import {Clone} from "@clones/Clone.sol";
+
 /// @notice Modern and gas efficient ERC20 + EIP-2612 implementation.
 /// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC20.sol)
 /// @author Modified from Uniswap (https://github.com/Uniswap/uniswap-v2-core/blob/master/contracts/UniswapV2ERC20.sol)
 /// @dev Do not manually set balances without updating totalSupply, as the sum of all user balances must not exceed it.
-abstract contract ERC20 {
+abstract contract ERC20 is Clone {
     /*///////////////////////////////////////////////////////////////
                                   EVENTS
     //////////////////////////////////////////////////////////////*/
@@ -33,28 +35,15 @@ abstract contract ERC20 {
     //////////////////////////////////////////////////////////////*/
 
     function name() external pure returns (string memory) {
-        uint256 offset = _getImmutableVariablesOffset();
-        bytes32 nameBytes;
-        assembly {
-            nameBytes := calldataload(offset)
-        }
-        return string(abi.encodePacked(nameBytes));
+        return string(abi.encodePacked(_getArgUint256(0)));
     }
 
     function symbol() external pure returns (string memory) {
-        uint256 offset = _getImmutableVariablesOffset();
-        bytes32 symbolBytes;
-        assembly {
-            symbolBytes := calldataload(add(offset, 0x20))
-        }
-        return string(abi.encodePacked(symbolBytes));
+        return string(abi.encodePacked(_getArgUint256(0x20)));
     }
 
-    function decimals() external pure returns (uint8 _decimals) {
-        uint256 offset = _getImmutableVariablesOffset();
-        assembly {
-            _decimals := shr(0xf8, calldataload(add(offset, 0x40)))
-        }
+    function decimals() external pure returns (uint8) {
+        return _getArgUint8(0x40);
     }
 
     /*///////////////////////////////////////////////////////////////

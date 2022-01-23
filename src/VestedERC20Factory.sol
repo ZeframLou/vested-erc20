@@ -2,9 +2,10 @@
 
 pragma solidity ^0.8.11;
 
+import {ClonesWithImmutableArgs} from "@clones/ClonesWithImmutableArgs.sol";
+
 import {ERC20} from "./lib/ERC20.sol";
 import {VestedERC20} from "./VestedERC20.sol";
-import {ClonesWithCallData} from "./lib/ClonesWithCallData.sol";
 
 /// @title VestedERC20Factory
 /// @author zefram.eth
@@ -14,7 +15,7 @@ contract VestedERC20Factory {
     /// Library usage
     /// -----------------------------------------------------------------------
 
-    using ClonesWithCallData for address;
+    using ClonesWithImmutableArgs for address;
 
     /// -----------------------------------------------------------------------
     /// Errors
@@ -70,9 +71,7 @@ contract VestedERC20Factory {
             mstore(add(ptr, 0x75), shl(0xc0, startTimestamp))
             mstore(add(ptr, 0x7d), shl(0xc0, endTimestamp))
         }
-        vestedERC20 = VestedERC20(
-            address(implementation).cloneWithCallDataProvision(ptr)
-        );
+        vestedERC20 = VestedERC20(address(implementation).clone(ptr));
         emit CreateVestedERC20(vestedERC20);
     }
 }
