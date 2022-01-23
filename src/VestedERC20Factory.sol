@@ -61,17 +61,15 @@ contract VestedERC20Factory {
         if (endTimestamp <= startTimestamp) {
             revert Error_InvalidTimeRange();
         }
-
-        bytes memory ptr = new bytes(101);
-        assembly {
-            mstore(add(ptr, 0x20), name)
-            mstore(add(ptr, 0x40), symbol)
-            mstore8(add(ptr, 0x60), decimals)
-            mstore(add(ptr, 0x61), shl(0x60, underlying))
-            mstore(add(ptr, 0x75), shl(0xc0, startTimestamp))
-            mstore(add(ptr, 0x7d), shl(0xc0, endTimestamp))
-        }
-        vestedERC20 = VestedERC20(address(implementation).clone(ptr));
+        bytes memory data = abi.encodePacked(
+            name,
+            symbol,
+            decimals,
+            underlying,
+            startTimestamp,
+            endTimestamp
+        );
+        vestedERC20 = VestedERC20(address(implementation).clone(data));
         emit CreateVestedERC20(vestedERC20);
     }
 }
