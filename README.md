@@ -4,6 +4,12 @@ A wrapper ERC20 token that linearly vests an underlying ERC20 token to its holde
 
 It's not really suited for trading, but it is a useful tool for plugging vesting into other primitives. One example is [Astrodrop](https://astrodrop.xyz), which is a tool for airdropping ERC20 tokens and more. Combining VestedERC20 with Astrodrop, one can airdrop vested tokens to arbitrarily many people for a constant cost.
 
+## `VestedERC20Factory` Deployments
+
+### Ethereum Mainnet
+
+[0x5bfFfE081bEf0A86389230c1661ED1ad6672F978](https://etherscan.io/address/0x5bfffe081bef0a86389230c1661ed1ad6672f978)
+
 ## Installation
 
 To install with [DappTools](https://github.com/dapphub/dapptools):
