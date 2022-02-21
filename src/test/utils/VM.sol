@@ -8,4 +8,6 @@ interface VM {
     function expectRevert(bytes calldata) external;
 
     function prank(address sender) external;
+
+    function assume(bool) external;
 }
