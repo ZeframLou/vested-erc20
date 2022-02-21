@@ -32,7 +32,7 @@ contract VestedERC20FactoryTest is DSTest {
             decimals,
             underlying,
             startTimestamp,
-            startTimestamp + 365 days
+            uint64(startTimestamp) + 365 days
         );
     }
 
@@ -53,7 +53,7 @@ contract VestedERC20FactoryTest is DSTest {
             decimals,
             underlying,
             startTimestamp,
-            startTimestamp + 365 days
+            uint64(startTimestamp) + 365 days
         );
 
         assertEq(vestedToken.name(), string(abi.encodePacked(name)));
@@ -66,7 +66,7 @@ contract VestedERC20FactoryTest is DSTest {
         );
         assertEq(
             uint256(vestedToken.endTimestamp()),
-            uint256(startTimestamp + 365 days)
+            uint256(uint64(startTimestamp) + 365 days)
         );
     }
 }

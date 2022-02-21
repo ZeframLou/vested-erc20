@@ -147,6 +147,9 @@ contract VestedERC20Test is DSTest {
     function testCorrectness_wrapAndClaim_transfer(uint224 underlyingAmount_)
         public
     {
+        // last test assertion will underflow if we don't
+        vm.assume(underlyingAmount_ > 7);
+
         uint256 underlyingAmount = uint256(underlyingAmount_);
 
         // clear wrapped token balance
